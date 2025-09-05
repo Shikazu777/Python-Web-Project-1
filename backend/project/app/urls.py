@@ -4,7 +4,8 @@ from app import views
 urlpatterns = [
     path("",views.index,name="index"),
     path("login",views.login,name="login"),
-    path("uploaddata",views.uploaddata,name="uploaddata")
+    path("uploaddata",views.uploaddata,name="uploaddata"),
+    path("getApplicationsData/")
 ]
 
 # ""=="/"=="localhost"==http://127.0.0.0:8000/

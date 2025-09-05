@@ -62,3 +62,54 @@ def uploaddata(request):
         return HttpResponse(f"Error: {e}")   # ✅ fixed multiple args issue
     
     return HttpResponse("File data is uploaded or updated")
+
+
+class ConnectionListView(ListView):
+    model=Connection
+    context_object_name= 'connection'
+    paginate_by=100
+
+    def get_queryset(self):
+        return super().get_queryset()
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        return super().get_context_data(**kwargs)
+
+    def render_to_response(self, context, **response_kwargs):
+        
+        serialized_data=[
+            {
+                'id':conn.id,
+                'Load_Applied':conn.Load_Applied,
+                'Date_of_Application':conn.Date_of_Application,
+                'Status':conn.Status.Status_Name,
+                'Applicant':{
+                    'Applicant_Name': conn.Applicant.Applicant_Name,
+                    'Gender': conn.Applicant.Gender,
+                    'District': conn.Applicant.District,
+                    'State': conn.Applicant.State,
+                    'Pincode': conn.Applicant.Pincode,
+                    'Ownership': conn.Applicant.Ownership,
+                    'GovtID_Type': conn.Applicant.GovtID_Type,
+                    'ID_Number': conn.Applicant.ID_Number,
+                    'Category': conn.Applicant.Category,
+                },
+                'Reviewer_ID': conn.Reviewer_ID,
+                'Reviewer_Name': conn.Reviewer_Name,
+                'Reviewer_Comments': conn.Reviewer_Comments,
+            }
+
+        for conn in context['connections']
+        ]
+
+        paginator=Paginator(serialized_data,self.paginate_by)
+        page_number=self.request.GET.get('page')
+        page_obj=paginator.get_page(page_number)
+
+        response_data={
+       'data':page_obj.object_list,
+       'total_pages':paginator.num_pages,
+       'current_page':page_obj.number
+}
+
+        return JsonResponse(response_data)
