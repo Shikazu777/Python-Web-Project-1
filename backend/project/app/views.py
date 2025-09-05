@@ -12,7 +12,7 @@ def login(request):
 
 def uploaddata(request):
     try:
-        filepath='people_100.csv'
+        filepath='customers_100.csv'
         df=pd.read_csv(filepath,encoding='latin-1')
 
         for index,row in df.iterrows():
