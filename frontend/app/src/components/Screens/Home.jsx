@@ -96,3 +96,86 @@ function Home() {
 }
 
 export default Home
+
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+const Home = () => {
+  const [data, setData] = useState([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    fetchData();
+  }, [page, search]);
+
+  const fetchData = async () => {
+    const res = await axios.get(`http://127.0.0.1:8000/api/applicants/`, {
+      params: { page, search, page_size: 5 },
+    });
+    setData(res.data.results);
+    setTotalPages(res.data.num_pages);
+  };
+
+  return (
+    <div className="p-4">
+      <input
+        type="text"
+        placeholder="Search..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="border px-2 py-1 mb-3"
+      />
+
+      <table className="table-auto w-full border">
+        <thead>
+          <tr>
+            <th className="border px-2 py-1">ID</th>
+            <th className="border px-2 py-1">Name</th>
+            <th className="border px-2 py-1">Email</th>
+            <th className="border px-2 py-1">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((a) => (
+            <tr key={a.id}>
+              <td className="border px-2 py-1">{a.id}</td>
+              <td className="border px-2 py-1">{a.name}</td>
+              <td className="border px-2 py-1">{a.email}</td>
+              <td className="border px-2 py-1">{a.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="mt-3 flex gap-2">
+        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+          Prev
+        </button>
+        <span>
+          {page} / {totalPages}
+        </span>
+        <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+          Next
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Home;
+
+
+import { Bar } from "react-chartjs-2";
+
+const chartData = {
+  labels: ["Pending", "Approved", "Rejected"],
+  datasets: [
+    {
+      label: "Applicants",
+      data: [12, 19, 3],
+    },
+  ],
+};
+<Bar data={chartData} />;

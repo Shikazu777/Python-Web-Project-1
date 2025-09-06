@@ -113,3 +113,46 @@ class ConnectionListView(ListView):
 }
 
         return JsonResponse(response_data)
+
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from .models import Applicant
+
+def applicant_list(request):
+    search = request.GET.get('search', '')
+    page_number = request.GET.get('page', 1)
+    page_size = int(request.GET.get('page_size', 10))
+
+    applicants = Applicant.objects.all()
+
+    if search:
+        applicants = applicants.filter(name__icontains=search)  # adjust fields
+
+    paginator = Paginator(applicants, page_size)
+    page = paginator.get_page(page_number)
+
+    data = list(page.object_list.values())
+
+    return JsonResponse({
+        "results": data,
+        "count": paginator.count,
+        "num_pages": paginator.num_pages,
+        "current_page": page.number,
+    })
+
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt
+def edit_applicant(request, pk):
+    if request.method == "PUT":
+        body = json.loads(request.body)
+        try:
+            applicant = Applicant.objects.get(pk=pk)
+            applicant.name = body.get("name", applicant.name)
+            applicant.email = body.get("email", applicant.email)
+            applicant.status = body.get("status", applicant.status)
+            applicant.save()
+            return JsonResponse({"message": "Applicant updated successfully"}, status=200)
+        except Applicant.DoesNotExist:
+            return JsonResponse({"error": "Applicant not found"}, status=404)

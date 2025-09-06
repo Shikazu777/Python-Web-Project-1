@@ -1,11 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=Login, initial-scale=1.0">
-    <title>Login</title>
-</head>
-<body>
-    <h2>this is login page.</h2>
-</body>
-</html>
+
+import React, { useState } from "react";
+import axios from "axios";
+
+const Login = () => {
+  const [form, setForm] = useState({ username: "", password: "" });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("http://127.0.0.1:8000/api/login/", form);
+      localStorage.setItem("token", res.data.token);
+      alert("Login successful");
+    } catch (err) {
+      alert("Invalid credentials");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="p-4">
+      <input
+        type="text"
+        placeholder="Username"
+        value={form.username}
+        onChange={(e) => setForm({ ...form, username: e.target.value })}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={form.password}
+        onChange={(e) => setForm({ ...form, password: e.target.value })}
+      />
+      <button type="submit">Login</button>
+    </form>
+  );
+};
+
+export default Login;
